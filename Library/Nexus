@@ -28,27 +28,6 @@ local ProtectGui = protectgui or (syn and syn.protect_gui) or function(gui)
     end
 end
 
--- Функция для обеспечения поверхностного отображения
-local function ensureTopMost()
-    if Library.GUI then
-        Library.GUI.DisplayOrder = 999
-        Library.GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-        
-        -- Периодическая проверка и восстановление приоритета
-        task.spawn(function()
-            while Library.GUI and Library.GUI.Parent do
-                if Library.GUI.DisplayOrder < 999 then
-                    Library.GUI.DisplayOrder = 999
-                end
-                wait(5)
-            end
-        end)
-    end
-end
-
--- Примените защиту
-ProtectGui(GUI)
-
 local Themes = {
 	Names = {
 		"Dark",
