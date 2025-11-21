@@ -28,6 +28,27 @@ local ProtectGui = protectgui or (syn and syn.protect_gui) or function(gui)
     end
 end
 
+-- Функция для обеспечения поверхностного отображения
+local function ensureTopMost()
+    if Library.GUI then
+        Library.GUI.DisplayOrder = 999
+        Library.GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        
+        -- Периодическая проверка и восстановление приоритета
+        task.spawn(function()
+            while Library.GUI and Library.GUI.Parent do
+                if Library.GUI.DisplayOrder < 999 then
+                    Library.GUI.DisplayOrder = 999
+                end
+                wait(5)
+            end
+        end)
+    end
+end
+
+-- Примените защиту
+ProtectGui(GUI)
+
 local Themes = {
 	Names = {
 		"Dark",
@@ -1817,14 +1838,12 @@ Library.MiniMessageToRichText = MiniMessageToRichText
 local New = Creator.New
 
 local GUI = New("ScreenGui", {
-	Parent = game:GetService("CoreGui"),
-	Name = "FluentInterface",
-	IgnoreGuiInset = true,
-	ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-	DisplayOrder = 999,
-	ResetOnSpawn = false
+    Parent = game:GetService("CoreGui"),
+    Name = "FluentInterface",
+    IgnoreGuiInset = true,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    DisplayOrder = 999  -- Высокий приоритет отображения
 })
-
 Library.GUI = GUI
 ProtectGui(GUI)
 
@@ -2722,6 +2741,17 @@ Components.Tab = (function()
 
 		Tab.Motor, Tab.SetTransparency = Creator.SpringMotor(0.92, Tab.Frame, "BackgroundTransparency")
 
+function Tab:UpdateAppearance()
+    local corner = self.Frame:FindFirstChild("UICorner")
+    if corner then
+        if self.Selected then
+            corner.CornerRadius = UDim.new(0, 12)  -- Выбранная вкладка
+        else
+            corner.CornerRadius = UDim.new(0, 8)   -- Обычная вкладка
+        end
+    end
+end
+	
 		Creator.AddSignal(Tab.Frame.MouseEnter, function()
 			Tab.SetTransparency(Tab.Selected and 0.85 or 0.87)
 		end)
@@ -3182,15 +3212,18 @@ Components.Tab = (function()
 		TabModule.SelectedTab = Tab
 		TabModule.CurrentAnimationTab = Tab
 
-		for _, TabObject in next, TabModule.Tabs do
-			TabObject.SetTransparency(0.92)
-			TabObject.Selected = false
-		end
-		TabModule.Tabs[Tab].SetTransparency(0.89)
-		TabModule.Tabs[Tab].Selected = true
+    for _, TabObject in next, TabModule.Tabs do
+        TabObject.SetTransparency(0.92)
+        TabObject.Selected = false
+        TabObject:UpdateAppearance()  -- ← ДОБАВЬ ЭТУ СТРОЧКУ
+    end
+    
+    TabModule.Tabs[Tab].SetTransparency(0.89)
+    TabModule.Tabs[Tab].Selected = true
+    TabModule.Tabs[Tab]:UpdateAppearance()  
 
-		Window.TabDisplay.Text = TabModule.Tabs[Tab].Name
-		Window.SelectorPosMotor:setGoal(Spring(TabModule:GetCurrentTabPos(), { frequency = 6 }))
+    Window.TabDisplay.Text = TabModule.Tabs[Tab].Name
+    Window.SelectorPosMotor:setGoal(Spring(TabModule:GetCurrentTabPos(), { frequency = 6 }))
 
 		if PreviousTab > 0 and PreviousTab ~= Tab and TabModule.Tabs[PreviousTab] and TabModule.Tabs[Tab] then
 			local OldContainer = TabModule.Tabs[PreviousTab].ContainerAnim
@@ -11060,6 +11093,9 @@ AddSignal(MinimizeButton.MouseButton1Click, function()
 
 
 end)
+
+
+ensureTopMost()
 
 
 AddSignal(MobileMinimizeButton.MouseButton1Click, function()
