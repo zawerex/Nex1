@@ -1825,7 +1825,11 @@ Library.MiniMessageToRichText = MiniMessageToRichText
 local New = Creator.New
 
 local GUI = New("ScreenGui", {
-	Parent = LocalPlayer:WaitForChild("PlayerGui"),
+    Parent = LocalPlayer:WaitForChild("PlayerGui"),
+    ZIndexBehavior = Enum.ZIndexBehavior.Global, -- Ключевая настройка
+    DisplayOrder = 999999, -- Очень высокий приоритет
+    IgnoreGuiInset = true, -- Игнорировать безопасные зоны
+    ResetOnSpawn = false
 })
 Library.GUI = GUI
 ProtectGui(GUI)
