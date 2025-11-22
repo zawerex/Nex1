@@ -1825,10 +1825,10 @@ Library.MiniMessageToRichText = MiniMessageToRichText
 local New = Creator.New
 
 local GUI = New("ScreenGui", {
-    Parent = game:GetService("CoreGui"), -- Измените родителя
+    Parent = game:GetService("CoreGui"), 
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
     ResetOnSpawn = false,
-    DisplayOrder = 999,
+    DisplayOrder = 999
 })
 
 Library.GUI = GUI
