@@ -1825,11 +1825,9 @@ Library.MiniMessageToRichText = MiniMessageToRichText
 local New = Creator.New
 
 local GUI = New("ScreenGui", {
-    Parent = LocalPlayer:WaitForChild("CoreGui"),
-    ZIndexBehavior = Enum.ZIndexBehavior.Global, -- Ключевая настройка
-    DisplayOrder = 999999, -- Очень высокий приоритет
-    IgnoreGuiInset = true, -- Игнорировать безопасные зоны
-    ResetOnSpawn = true
+    Parent = LocalPlayer:WaitForChild("PlayerGui"),
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    ResetOnSpawn = false,
 })
 Library.GUI = GUI
 ProtectGui(GUI)
@@ -3547,6 +3545,7 @@ Components.Notification = (function()
 			AnchorPoint = Vector2.new(1, 1),
 			BackgroundTransparency = 1,
 			Parent = GUI,
+			ZIndex = 2000,
 		}, {
 			New("UIListLayout", {
 				HorizontalAlignment = Enum.HorizontalAlignment.Center,
@@ -4607,12 +4606,13 @@ Components.Window = (function()
 		table.insert(rootChildren, TabFrame)
 		table.insert(rootChildren, ResizeStartFrame)
 
-		Window.Root = New("Frame", {
-			BackgroundTransparency = 1,
-			Size = Window.Size,
-			Position = Window.Position,
-			Parent = Config.Parent,
-		}, rootChildren)
+Window.Root = New("Frame", {
+    BackgroundTransparency = 1,
+    Size = Window.Size,
+    Position = Window.Position,
+    Parent = Config.Parent,
+    ZIndex = 100, 
+}, rootChildren)
 
 		CenterWindow()
 		Creator.AddSignal(Camera:GetPropertyChangedSignal("ViewportSize"), function()
@@ -5587,17 +5587,18 @@ ElementsTable.Dropdown = (function()
 			}),
 		})
 
-		local DropdownHolderCanvas = New("Frame", {
-			BackgroundTransparency = 1,
-			Size = UDim2.fromOffset(170, 300),
-			Parent = Library.GUI,
-			Visible = false,
-		}, {
-			DropdownHolderFrame,
-			New("UISizeConstraint", {
-				MinSize = Vector2.new(170, 0),
-			}),
-		})
+local DropdownHolderCanvas = New("Frame", {
+    BackgroundTransparency = 1,
+    Size = UDim2.fromOffset(170, 300),
+    Parent = Library.GUI,
+    Visible = false,
+    ZIndex = 1000, 
+}, {
+    DropdownHolderFrame,
+    New("UISizeConstraint", {
+        MinSize = Vector2.new(170, 0),
+    }),
+})
 		table.insert(Library.OpenFrames, DropdownHolderCanvas)
 
 		local windowRoot = nil
