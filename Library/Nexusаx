@@ -1827,7 +1827,7 @@ local New = Creator.New
 local GUI = New("ScreenGui", {
     Parent = LocalPlayer:WaitForChild("PlayerGui"),
     DisplayOrder = 999, -- Очень высокий приоритет
-    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    ZIndexBehavior = Enum.ZIndexBehavior.Global,
 })
 Library.GUI = GUI
 ProtectGui(GUI)
