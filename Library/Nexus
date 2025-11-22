@@ -1828,6 +1828,8 @@ local GUI = New("ScreenGui", {
     Parent = LocalPlayer:WaitForChild("PlayerGui"),
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
     ResetOnSpawn = false,
+    DisplayOrder = 999, 
+    IgnoreGuiInset = true,
 })
 Library.GUI = GUI
 ProtectGui(GUI)
