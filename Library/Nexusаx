@@ -1,17 +1,3 @@
---[[
-
-███████╗██╗░░░░░██╗░░░██╗███████╗███╗░░██╗████████╗  ██████╗░██╗░░░░░██╗░░░██╗░██████╗
-██╔════╝██║░░░░░██║░░░██║██╔════╝████╗░██║╚══██╔══╝  ██╔══██╗██║░░░░░██║░░░██║██╔════╝
-█████╗░░██║░░░░░██║░░░██║█████╗░░██╔██╗██║░░░██║░░░  ██████╔╝██║░░░░░██║░░░██║╚█████╗░
-██╔══╝░░██║░░░░░██║░░░██║██╔══╝░░██║╚████║░░░██║░░░  ██╔═══╝░██║░░░░░██║░░░██║░╚═══██╗
-██║░░░░░███████╗╚██████╔╝███████╗██║░╚███║░░░██║░░░  ██║░░░░░███████╗╚██████╔╝██████╔╝
-╚═╝░░░░░╚══════╝░╚═════╝░╚══════╝╚═╝░░╚══╝░░░╚═╝░░░  ╚═╝░░░░░╚══════╝░╚═════╝░╚═════╝░
-
-A modified version of Fluent
-https://fluent-pl.us
-
-]]
-
 local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
@@ -34,7 +20,52 @@ end
 
 local RenderStepped = RunService.RenderStepped
 
-local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
+local ProtectGui = protectgui or (syn and syn.protect_gui) or function(gui)
+    if gui and gui:IsA("Instance") then
+        pcall(function()
+            gui.Parent = game:GetService("CoreGui")
+        end)
+    end
+end
+
+-- Переместите определение Library выше
+local Library = {
+    Version = "1.2.2",
+    OpenFrames = {},
+    Options = {},
+    Themes = Themes.Names,
+    Windows = {},
+    Window = nil,
+    WindowFrame = nil,
+    Unloaded = false,
+    Creator = nil,
+    DialogOpen = false,
+    UseAcrylic = false,
+    Acrylic = false,
+    Transparency = true,
+    MinimizeKeybind = nil,
+    MinimizeKey = Enum.KeyCode.LeftControl,
+}
+
+local function ensureTopMost()
+    if Library.GUI then
+        Library.GUI.DisplayOrder = 999
+        Library.GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        
+        -- Периодическая проверка и восстановление приоритета
+        task.spawn(function()
+            while Library.GUI and Library.GUI.Parent do
+                if Library.GUI.DisplayOrder < 999 then
+                    Library.GUI.DisplayOrder = 999
+                end
+                wait(5)
+            end
+        end)
+    end
+end
+
+-- Примените защиту
+ProtectGui(GUI)
 
 local Themes = {
 	Names = {
@@ -763,28 +794,6 @@ local Themes = {
 		HoverChange = 0.04
 	}
 
-}
-
-local Library = {
-	Version = "1.2.2",
-
-	OpenFrames = {},
-	Options = {},
-	Themes = Themes.Names,
-	Windows = {},
-
-	Window = nil,
-	WindowFrame = nil,
-	Unloaded = false,
-
-	Creator = nil,
-
-	DialogOpen = false,
-	UseAcrylic = false,
-	Acrylic = false,
-	Transparency = true,
-	MinimizeKeybind = nil,
-	MinimizeKey = Enum.KeyCode.LeftControl,
 }
 
 local function isMotor(value)
@@ -1825,9 +1834,11 @@ Library.MiniMessageToRichText = MiniMessageToRichText
 local New = Creator.New
 
 local GUI = New("ScreenGui", {
-    Parent = LocalPlayer:WaitForChild("PlayerGui"),
-    DisplayOrder = 999, -- Очень высокий приоритет
-    ZIndexBehavior = Enum.ZIndexBehavior.Global,
+    Parent = game:GetService("CoreGui"),
+    Name = "FluentInterface",
+    IgnoreGuiInset = true,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    DisplayOrder = 999  -- Высокий приоритет отображения
 })
 Library.GUI = GUI
 ProtectGui(GUI)
@@ -11066,7 +11077,7 @@ AddSignal(MinimizeButton.MouseButton1Click, function()
 end)
 
 
-
+ensureTopMost()
 
 
 AddSignal(MobileMinimizeButton.MouseButton1Click, function()
